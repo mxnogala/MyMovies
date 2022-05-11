@@ -40,7 +40,7 @@ namespace MyMovies.Api.Controllers
 
         }
 
-        [HttpGet("/api/movies/{id}")]
+        [HttpGet("/api/movie/{id}")]
         public async Task<IActionResult> GetMovieById([FromRoute] int id)
         {
             try

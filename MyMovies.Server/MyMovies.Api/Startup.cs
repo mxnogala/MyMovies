@@ -46,6 +46,10 @@ namespace MyMovies.Api
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyMovies.Api v1"));
             }
+            app.UseCors(options => options
+            .WithOrigins("http://localhost:8080")
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 
             app.UseRouting();
 
