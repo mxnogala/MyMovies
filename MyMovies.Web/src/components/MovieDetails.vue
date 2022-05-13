@@ -1,7 +1,6 @@
 <template>
-      <b-modal id="movie-modal" :title="title" hide-footer @shown="getMovie" @hidden="set_default">
-         <b-form @submit="addMovie">
-           <!-- @submit="onSubmit" @reset="onReset" -->
+      <b-modal id="movie-modal" :title="title" hide-footer>
+         <b-form @submit="onSubmit">
       <b-form-group
         id="title"
         label="Title:"
@@ -13,6 +12,7 @@
           type="text"
           placeholder="Enter title"
           v-model="movie.title"
+          :disabled="disabled"
           required
         ></b-form-input>
       </b-form-group>
@@ -22,17 +22,19 @@
           id="release-input"
           v-model="movie.releaseDate"
           placeholder="Enter release date"
+          :disabled="disabled"
         ></b-form-input>
       </b-form-group>
 
-      <b-button type="submit" variant="primary">Submit</b-button>
+      <b-button type="submit" variant="primary" v-if="action != 'show'">Submit</b-button>
     </b-form>  
   </b-modal>
 </template>
 
 <script>
-import {ApiClient} from '/http_common.js';
+import {ApiClient} from '@/service/ApiClient.js';
 import Movie from '@/models/Movie';
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'MovieList',
@@ -40,7 +42,6 @@ export default {
   },
   data() {
     return {
-      movie: new Movie,
     }
   },
   props: {
@@ -48,41 +49,46 @@ export default {
     refresh_method: Function,
     movie_id: Number,
     set_default: Function,
+    disabled: Boolean,
+    action: String,
     },
 
   methods: {
     addMovie() {
       delete this.movie.id;
-      ApiClient.post(this.movie).then(response => {
+      ApiClient.post(this.$store.state.movie).then(response => {
         if (response.status == 200) {
           this.refresh_method();
-          this.$bvModal.hide('movie-modal')
-          this.movie = new Movie()
+          this.$bvModal.hide('movie-modal');
         }        
       })
     },
 
-    getMovieById(id) {
-      console.log(id);
-      ApiClient.getById(id).then((response) => {
-        this.movie = response.data;
-        console.log(this.movie);
-      });
+    editMovie() {
+      ApiClient.put(this.$store.state.movie).then(response => {
+        if (response.status == 200) {
+          this.refresh_method();
+          this.$bvModal.hide('movie-modal');
+        }
+      })
     },
 
-    getMovie() {
-      if (this.movie_id != null) {
-        this.getMovieById(this.movie_id);
+    onSubmit() {
+      if (this.action == "add") {
+        this.addMovie();
       }
-      else {
-        this.movie = new Movie();
+      else if (this.action == "edit") {
+        this.editMovie();
       }
-    },
-    getDefaultData() {
-      this.movie_id = null;
     }
 
   },
+      computed: {
+    ...mapGetters({
+      movie: "movie",
+    }),
+    
+    },
  
 }
 </script>
