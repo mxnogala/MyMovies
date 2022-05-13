@@ -55,10 +55,12 @@ export default {
     },
 
     removeMovie(id) {
-      MovieRequest().removeItem(id).then((response) => {
-        console.log(response);
-        this.getAllMovies();
-      })
+      if (confirm("Are you sure you want to delete this movie?")) {
+        MovieRequest().removeItem(id).then((response) => {
+          console.log(response);
+          this.getAllMovies();
+        })
+      }
     },
 
     getMovieById(id) {
