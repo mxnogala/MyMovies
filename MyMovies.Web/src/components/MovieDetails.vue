@@ -1,15 +1,11 @@
 <template>
-      <b-modal id="movie-modal" :title="title" hide-footer>
-         <b-form @submit="onSubmit">
-           <div class="errorsTitle">
-              <div class="error" v-if="!$v.movie.title.required">Title is required</div>
-              <div class="error" v-if="!$v.movie.title.maxLength">Title can only have 200 characters.</div>
-            </div>
-      <b-form-group
-        id="title"
-        label="Title:"
-        label-for="title-input" class="pb-3"
-      >
+  <b-modal id="movie-modal" :title="title" hide-footer>
+    <b-form @submit="onSubmit">
+      <div class="errorsTitle">
+        <div class="error" v-if="!$v.movie.title.required">Title is required</div>
+        <div class="error" v-if="!$v.movie.title.maxLength">Title can only have 200 characters.</div>
+      </div>
+      <b-form-group id="title" label="Title:" label-for="title-input" class="pb-3">
         <b-form-input
           id="title-input"
           type="text"
@@ -24,7 +20,6 @@
         <div class="error" v-if="!$v.movie.releaseDate.numeric">Release date must be numeric.</div>
         <div class="error" v-if="!$v.movie.releaseDate.minValue || !$v.movie.releaseDate.maxValue">Release date must be between 1900 and 2100</div>
       </div>
-
       <b-form-group id="release-date" label="Release date:" label-for="release-input" class="pb-5">
         <b-form-input
           id="release-input"
@@ -33,22 +28,23 @@
           :disabled="disabled"
         ></b-form-input>
       </b-form-group>
-
-      <b-button class="pt-2" type="submit" variant="outline-success" v-if="action != 'show'" :disabled="$v.movie.$invalid">Submit</b-button>
+      <b-button 
+        class="mt-3" 
+        type="submit" 
+        variant="outline-success" 
+        v-if="action != 'show'" 
+        :disabled="$v.movie.$invalid">Submit</b-button>
     </b-form>  
   </b-modal>
 </template>
 
 <script>
-import {ApiClient} from '@/service/ApiClient.js';
-import Movie from '@/models/Movie';
 import { mapGetters } from 'vuex'
 import MovieRequest from "@/service/MovieRequest.js";
 import {
   required,
   minValue,
   maxValue,
-  minLength,
   maxLength,
   numeric,
 } from "vuelidate/lib/validators";
@@ -64,8 +60,6 @@ export default {
   props: {
     title:String,
     refresh_method: Function,
-    movie_id: Number,
-    set_default: Function,
     disabled: Boolean,
     action: String,
     },
@@ -89,19 +83,38 @@ export default {
       delete this.movie.id;
       MovieRequest().addItem(this.$store.state.movie).then((response) => {
         if (response.status == 200) {
+          this.$emit('show-alert', 'success', 'Movie added.');
           this.refresh_method();
           this.$bvModal.hide('movie-modal');
         }
+        else {
+          this.$emit('show-alert', 'error', 'Movie cannot be added. Please try later.');
+          this.$bvModal.hide('movie-modal');
+        }
+      },
+      (error) => {
+        this.$emit('show-alert', 'danger', `Movie cannot be added. Please try later. ${error}`);
+        this.$bvModal.hide('movie-modal');
       })
     },
 
     editMovie() {
-      MovieRequest.updateItem(this.$store.state.movie).then((response) => {
+      console.log(this.$store.state.movie);
+      MovieRequest().updateItem(this.$store.state.movie).then((response) => {
         if (response.status == 200)
         {
           this.refresh_method();
+          this.$emit('show-alert', 'success', 'Movie edited.');
           this.$bvModal.hide('movie-modal');
         }
+        else {
+          this.$emit('show-alert', 'error', `Movie cannot be edited. Please try later. ${error}`);
+          this.$bvModal.hide('movie-modal');
+        }
+      },
+      (error) => {
+        this.$emit('show-alert', 'danger', `Movie cannot be edited. Please try later. ${error}`);
+        this.$bvModal.hide('movie-modal');
       })
     },
 
@@ -115,13 +128,13 @@ export default {
     },
 
   },
-      computed: {
+
+  computed: {
     ...mapGetters({
       movie: "movie",
     }),
     
-    },
- 
+  },
 }
 </script>
 
@@ -130,7 +143,7 @@ export default {
   color: red;
 }
 .errorsTitle {
-  height: 30px;
+  height: 25px;
 }
 .errorsDate {
   height: 50px;

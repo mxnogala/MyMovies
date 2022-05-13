@@ -1,21 +1,23 @@
 <template>
   <b-container>
-    <div>
+    <div class="pt-5 pb-2">
       <b-button variant="secondary" @click="getAction('add', null)">Add new movie</b-button>
-      <MovieDetails :title="title" :refresh_method="getAllMovies" :disabled="disabled" :action="action"/>
+      <MovieDetails :title="title" :refresh_method="getAllMovies" :disabled="disabled" :action="action" v-on="$listeners"/>
     </div>
     <b-table striped hover :items="movies" :fields="fields" >
       <template v-slot:cell(edit)="row">
-          <b-button variant="outline-success"  @click="getAction('edit', row.item.id)"><b-icon-pencil></b-icon-pencil></b-button>
+        <b-button variant="outline-success"  @click="getAction('edit', row.item.id)">
+          <b-icon-pencil></b-icon-pencil>
+        </b-button>
       </template>
       <template v-slot:cell(remove)="row">
         <b-button variant="outline-danger" @click="removeMovie(row.item.id)">
-        <b-icon-trash></b-icon-trash>
+          <b-icon-trash></b-icon-trash>
         </b-button>
       </template>
       <template v-slot:cell(show)="row">
         <b-button variant="outline-secondary" @click="getAction('show', row.item.id)">
-        <b-icon-eye></b-icon-eye>
+          <b-icon-eye></b-icon-eye>
         </b-button>
       </template>
     </b-table>
@@ -35,39 +37,65 @@ export default {
   },
   data() {
     return {
-      movies: [],
-      errors: [], 
+      movies: [], 
       fields: ['id', 'title', 'releaseDate', 'show', 'edit', 'remove'],
       title: "",
       addTitle: "Add new movie",
       editTitle: "Edit movie",
       showTitle: "Movie details",
-      movie_id: null,
       disabled: false,
       action: "add",
     }
   },
   methods: {
     getAllMovies() {
-        MovieRequest().getItems().then((response) => {
+      MovieRequest().getItems().then((response) => {
+        if (response.status == 200) {
           this.movies = response.data;
-        });
+        }
+        else {
+          this.$emit('show-alert', 'error', `Movies cannot be retrieved. ${error}`);
+          this.$bvModal.hide('movie-modal');
+        }
+      },
+      (error) => {
+        this.$emit('show-alert', 'danger', `Movies cannot be retrieved. ${error}`);
+        this.$bvModal.hide('movie-modal');
+      })
     },
 
     removeMovie(id) {
       if (confirm("Are you sure you want to delete this movie?")) {
         MovieRequest().removeItem(id).then((response) => {
-          console.log(response);
-          this.getAllMovies();
+          if (response.status == 200) {
+            this.$emit('show-alert', 'success', 'Movie removed.');
+            this.getAllMovies();
+          } 
+          else {
+            this.$emit('show-alert', 'error', `Movie cannot be removed. Please try later. ${error}`);
+            this.$bvModal.hide('movie-modal');
+          }
+        },
+        (error) => {
+          this.$emit('show-alert', 'danger',  `Movie cannot be removed. Please try later. ${error}`);
+          this.$bvModal.hide('movie-modal');
         })
       }
     },
 
     getMovieById(id) {
       MovieRequest().getItem(id).then((response) => {
-        console.log(id);
-        console.log(response.data);
-        this.$store.state.movie = new Movie(response.data);
+        if (response.status == 200) {
+          this.$store.state.movie = new Movie(response.data);
+        }
+        else {
+          this.$emit('show-alert', 'error', `Movie cannot be retrieved. ${error}`);
+          this.$bvModal.hide('movie-modal');
+        }
+      },
+      (error) => {
+        this.$emit('show-alert', 'danger', `Movie cannot be retrieved. ${error}`);
+        this.$bvModal.hide('movie-modal');
       })
     },
 
@@ -93,18 +121,16 @@ export default {
 
       this.$bvModal.show('movie-modal');
     },
-
   },
 
- computed: {
+  computed: {
     ...mapGetters({
       movie: "movie",
     }),
-    },
+  },
 
   created() {
     this.getAllMovies();
   },
-
 }
 </script>

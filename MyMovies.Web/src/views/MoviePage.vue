@@ -1,5 +1,5 @@
 <template>
-  <MovieList />
+  <MovieList v-on="$listeners"/>
 </template>
 <script>
 import MovieList from '@/components/MovieList'
