@@ -10,7 +10,7 @@ using MyMovies.DataAccess;
 namespace MyMovies.DataAccess.Migrations
 {
     [DbContext(typeof(MovieDbContext))]
-    [Migration("20220510122543_init")]
+    [Migration("20220513130509_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

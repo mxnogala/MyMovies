@@ -10,8 +10,10 @@ namespace MyMovies.DataAccess
 {
         public class MovieDbContext : DbContext
         {
-            private string _connectionString = "Server=(localdb)\\mssqllocaldb;Database=MyMoviesDb;Trusted_Connection=True;";
-            public DbSet<Movie> Movies { get; set; }
+            public MovieDbContext(DbContextOptions options) : base(options)
+            {
+            }
+        public DbSet<Movie> Movies { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -22,10 +24,6 @@ namespace MyMovies.DataAccess
 
             }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(_connectionString);
-            }
         }
 }
 
