@@ -1,19 +1,20 @@
-# mymovies
+# Project setup
+## MyMovies.Server 
+### Create database with Package Manager Console
+```
+update-database 
+```
+### Set MyMovies.Api as startup project
+### Endpoints are available at http://localhost:5000/swagger/index.html
 
-## Project setup
+## MyMovies.Web
+### In Visual Studio Code terminal
 ```
 npm install
 ```
-
-### Compiles and hot-reloads for development
+### Compile app
 ```
 npm run serve
 ```
+### Web application is ready at http://localhost:8080/
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
