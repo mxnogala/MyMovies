@@ -23,10 +23,10 @@
 </template>
 
  <script>
-import {ApiClient} from '@/service/ApiClient.js';
 import { mapGetters } from 'vuex'
 import Movie from '@/models/Movie';
 import MovieDetails from "@/components/MovieDetails";
+import MovieRequest from "@/service/MovieRequest.js";
 
 export default {
   name: 'MovieList',
@@ -49,27 +49,23 @@ export default {
   },
   methods: {
     getAllMovies() {
-      ApiClient.get().then(response => {
-        this.movies = response.data;
-      })
-      .catch(e => {
-        this.errors.push(e)
-      });
+        MovieRequest().getItems().then((response) => {
+          this.movies = response.data;
+        });
     },
 
     removeMovie(id) {
-      console.log(id);
-      ApiClient.delete(id).then((response) => {
+      MovieRequest().removeItem(id).then((response) => {
         console.log(response);
         this.getAllMovies();
-      });
+      })
     },
 
-      getMovieById(id) {
-      console.log(id);
-      ApiClient.getById(id).then((response) => {
-        this.$store.state.movie = response.data;
-        console.log(this.movie);
+    getMovieById(id) {
+      MovieRequest().getItem(id).then((response) => {
+        console.log(id);
+        console.log(response.data);
+        this.$store.state.movie = new Movie(response.data);
       })
     },
 
@@ -87,7 +83,7 @@ export default {
         this.getMovieById(id);
       }
       else if (action == 'add' && id == null) {
-        this.diabled = false;
+        this.disabled = false;
         this.title = this.addTitle;
         this.action = "add";
         this.$store.state.movie = new Movie();
@@ -97,6 +93,7 @@ export default {
     },
 
   },
+
  computed: {
     ...mapGetters({
       movie: "movie",
@@ -105,6 +102,7 @@ export default {
 
   created() {
     this.getAllMovies();
-  }
+  },
+
 }
 </script>

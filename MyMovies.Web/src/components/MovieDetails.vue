@@ -35,6 +35,7 @@
 import {ApiClient} from '@/service/ApiClient.js';
 import Movie from '@/models/Movie';
 import { mapGetters } from 'vuex'
+import MovieRequest from "@/service/MovieRequest.js";
 
 export default {
   name: 'MovieList',
@@ -56,22 +57,31 @@ export default {
   methods: {
     addMovie() {
       delete this.movie.id;
-      ApiClient.post(this.$store.state.movie).then(response => {
-        if (response.status == 200) {
-          this.refresh_method();
-          this.$bvModal.hide('movie-modal');
-        }        
-      })
-    },
-
-    editMovie() {
-      ApiClient.put(this.$store.state.movie).then(response => {
+      MovieRequest().addItem(this.$store.state.movie).then((response) => {
         if (response.status == 200) {
           this.refresh_method();
           this.$bvModal.hide('movie-modal');
         }
       })
     },
+
+    editMovie() {
+      MovieRequest.updateItem(this.$store.state.movie).then((response) => {
+        if (response.status == 200)
+        {
+          this.refresh_method();
+          this.$bvModal.hide('movie-modal');
+        }
+      })
+    },
+    // editMovie() {
+    //   ApiClient.put(this.$store.state.movie).then(response => {
+    //     if (response.status == 200) {
+    //       this.refresh_method();
+    //       this.$bvModal.hide('movie-modal');
+    //     }
+    //   })
+    // },
 
     onSubmit() {
       if (this.action == "add") {

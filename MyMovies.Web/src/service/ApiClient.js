@@ -21,4 +21,15 @@ export const ApiClient = {
   put(data) {
     return axios.put(baseURL, data);
   },
+  request(method, data) {
+    return new Promise((resolve, reject) => {
+      method(data)
+        .then((response) => {
+          resolve(response);
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  },
 };
